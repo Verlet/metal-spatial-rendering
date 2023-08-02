@@ -132,7 +132,7 @@ MTLRenderPassDescriptor* SpatialRenderer::createRenderPassDescriptor(cp_drawable
     passDescriptor.depthAttachment.texture = cp_drawable_get_depth_texture(drawable, index);
     passDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
 
-    passDescriptor.renderTargetArrayLength = cp_drawable_get_view_count(drawable);
+    passDescriptor.renderTargetArrayLength = 1;//cp_drawable_get_view_count(drawable);
     passDescriptor.rasterizationRateMap = cp_drawable_get_rasterization_rate_map(drawable, index);
 
     return passDescriptor;
@@ -151,9 +151,11 @@ PoseConstants SpatialRenderer::poseConstantsForViewIndex(cp_drawable_t drawable,
                                                                                           tangents[2], tangents[3],
                                                                                           depth_range[1], depth_range[0],
                                                                                           true);
-    outPose.projectionMatrix = matrix_float4x4_from_double4x4(projectiveTransform.matrix);
+    outPose.projectionMatrix = matrix_float4x4_from_double4x4(projectiveTransform.matrix); // clipFromEyeProj
 
-    simd_float4x4 cameraMatrix = simd_mul(poseTransform, cp_view_get_transform(view));
-    outPose.viewMatrix = simd_inverse(cameraMatrix);
+    // poseTransform // worldFromHeadT
+   // cp_view_get_transform(view) // headFromEyeT
+    simd_float4x4 cameraMatrix = simd_mul(poseTransform, cp_view_get_transform(view)); // worldFromEyeT
+    outPose.viewMatrix = simd_inverse(cameraMatrix); // eyeFromWorldT
     return outPose;
 }
