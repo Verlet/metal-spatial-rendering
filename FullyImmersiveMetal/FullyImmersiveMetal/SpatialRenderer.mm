@@ -141,8 +141,8 @@ MTLRenderPassDescriptor* SpatialRenderer::createRenderPassDescriptor(cp_drawable
 PoseConstants SpatialRenderer::poseConstantsForViewIndex(cp_drawable_t drawable, size_t index) {
     PoseConstants outPose;
 
-    ar_pose_t arPose = cp_drawable_get_ar_pose(drawable);
-    simd_float4x4 poseTransform = ar_pose_get_origin_from_device_transform(arPose);
+    ar_device_anchor_t arDeviceAnchor = cp_drawable_get_device_anchor(drawable);
+    simd_float4x4 deviceTransform = ar_anchor_get_origin_from_anchor_transform(arDeviceAnchor);
 
     cp_view_t view = cp_drawable_get_view(drawable, index);
     simd_float4 tangents = cp_view_get_tangents(view);
@@ -155,7 +155,7 @@ PoseConstants SpatialRenderer::poseConstantsForViewIndex(cp_drawable_t drawable,
 
     // poseTransform // worldFromHeadT
    // cp_view_get_transform(view) // headFromEyeT
-    simd_float4x4 cameraMatrix = simd_mul(poseTransform, cp_view_get_transform(view)); // worldFromEyeT
+    simd_float4x4 cameraMatrix = simd_mul(deviceTransform, cp_view_get_transform(view)); // worldFromEyeT
     outPose.viewMatrix = simd_inverse(cameraMatrix); // eyeFromWorldT
     return outPose;
 }
